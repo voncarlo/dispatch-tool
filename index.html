@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dispatch Tool</title>
@@ -284,6 +284,71 @@
     gap: 10px;
   }
 
+  .predvic-panel * { box-sizing: border-box; }
+  .predvic-panel { padding: 1.5rem; max-width: 960px; margin: 0 auto; }
+  .predvic-panel .hero { border-radius: 22px; background: #0C447C; padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+  .predvic-panel .hero-bg, .predvic-panel .hero-bg2 { position: absolute; border-radius: 50%; background: #185FA5; opacity: .3; }
+  .predvic-panel .hero-bg { right: -20px; top: -20px; width: 180px; height: 180px; }
+  .predvic-panel .hero-bg2 { right: 40px; bottom: -40px; width: 120px; height: 120px; }
+  .predvic-panel .hero h1 { font-size: 1.25rem; font-weight: 500; color: #fff; margin-bottom: 4px; }
+  .predvic-panel .hero-sub { font-size: 0.82rem; color: #cdd6e0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .predvic-panel .tz-badge { background: rgba(24,95,165,0.9); border: 0.5px solid rgba(55,138,221,0.7); border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #d6e7fb; font-weight: 500; }
+  .predvic-panel .stats-row { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .predvic-panel .settings-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 1rem; }
+  .predvic-panel .settings-row label { font-size: 0.85rem; color: var(--muted); min-width: 120px; }
+  .predvic-panel .settings-row select { min-width: 220px; }
+  .predvic-panel .stat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 18px; padding: 1rem; text-align: center; }
+  .predvic-panel .stat-card .num { font-size: 1.8rem; font-weight: 700; color: var(--accent); line-height: 1.1; margin-bottom: 4px; }
+  .predvic-panel .stat-card .lbl { font-size: 0.75rem; color: var(--muted); }
+  .predvic-panel .drop-area { border: 2px dashed var(--border); border-radius: 18px; padding: 2rem 1rem; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; margin-bottom: 1.5rem; background: var(--bg); }
+  .predvic-panel .drop-area:hover, .predvic-panel .drop-area.over { border-color: var(--accent); background: rgba(61,224,160,0.08); }
+  .predvic-panel .drop-icon { width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(230,241,251,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform .15s; }
+  .predvic-panel .drop-title { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .predvic-panel .drop-sub { font-size: 0.82rem; color: var(--muted); }
+  .predvic-panel .progress-bar-wrap { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; display: none; }
+  .predvic-panel .progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 2px; transition: width .3s; }
+  .predvic-panel .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .predvic-panel .section-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+  .predvic-panel .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .predvic-panel .btn { padding: 8px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-size: 0.85rem; color: var(--text); font-family: inherit; transition: opacity .15s, transform .1s; }
+  .predvic-panel .btn:hover { opacity: .9; }
+  .predvic-panel .btn-primary { background: var(--accent); color: #0d0f14; border-color: var(--accent); }
+  .predvic-panel .btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+  .predvic-panel .unknown-banner { background: rgba(255,235,235,0.12); border: 0.5px solid rgba(240,149,149,0.35); border-radius: 18px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .predvic-panel .ub-title { font-size: 0.85rem; font-weight: 600; color: #f8b3b3; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .predvic-panel .ub-vins { display: flex; flex-wrap: wrap; gap: 6px; }
+  .predvic-panel .ub-pill { background: var(--surface); border: 0.5px solid rgba(240,149,149,0.35); border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; font-family: var(--font-mono, monospace); color: #f6c8c8; }
+  .predvic-panel .tbl-wrap { border-radius: 18px; border: 0.5px solid var(--border); overflow: hidden; margin-bottom: 1.5rem; }
+  .predvic-panel .tbl-toolbar { background: var(--surface); padding: 10px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 0.5px solid var(--border); }
+  .predvic-panel .tbl-search, .predvic-panel .tbl-filter { padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); font-size: 0.82rem; color: var(--text); font-family: inherit; outline: none; }
+  .predvic-panel .tbl-search { flex: 1; min-width: 0; }
+  .predvic-panel .tbl-filter { cursor: pointer; }
+  .predvic-panel table { width: 100%; border-collapse: collapse; font-size: 0.9rem; table-layout: fixed; }
+  .predvic-panel th { padding: 12px 14px; text-align: left; font-size: 0.72rem; font-weight: 700; letter-spacing: .05em; color: var(--muted); text-transform: uppercase; background: var(--surface); border-bottom: 0.5px solid var(--border); cursor: pointer; user-select: none; }
+  .predvic-panel th:hover { color: var(--text); }
+  .predvic-panel td { padding: 12px 14px; border-bottom: 0.5px solid var(--border); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .predvic-panel tr:last-child td { border-bottom: none; }
+  .predvic-panel tr:hover td { background: var(--surface); }
+  .predvic-panel .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+  .predvic-panel .badge-green { background: rgba(234,243,222,0.32); color: #c7e5b6; }
+  .predvic-panel .badge-red { background: rgba(252,235,235,0.22); color: #f4b2b2; }
+  .predvic-panel .badge-amber { background: rgba(250,238,218,0.35); color: #f0d29e; }
+  .predvic-panel .badge-blue { background: rgba(230,241,251,0.28); color: #97c1e2; }
+  .predvic-panel .vins-expander { margin-bottom: 1.5rem; }
+  .predvic-panel .vins-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 14px; background: var(--surface); border-radius: 18px; border: 0.5px solid var(--border); font-size: 0.9rem; color: var(--text); user-select: none; }
+  .predvic-panel .vins-toggle:hover { color: var(--accent); }
+  .predvic-panel .vins-toggle .arrow { font-size: 11px; transition: transform .2s; }
+  .predvic-panel .vins-toggle .arrow.open { transform: rotate(90deg); }
+  .predvic-panel .vins-body { padding: 12px 14px; background: var(--bg); border-radius: 18px; border: 0.5px solid var(--border); display: none; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .predvic-panel .vins-body.open { display: flex; }
+  .predvic-panel .vin-pill { background: var(--surface); border: 0.5px solid var(--border); border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-family: var(--font-mono, monospace); color: var(--text); }
+  .predvic-panel .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+  .predvic-panel .empty-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+  .predvic-panel .empty-icon svg { width: 24px; height: 24px; stroke: var(--muted); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .predvic-panel .toast-area { position: absolute; top: 1rem; right: 1rem; display: flex; flex-direction: column; gap: 8px; z-index: 20; max-width: 320px; }
+  .predvic-panel .toast { background: rgba(121,31,31,0.95); color: #fcebeb; border-radius: 18px; padding: 10px 14px; font-size: 0.82rem; line-height: 1.4; animation: fadeIn .2s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
   .stat-box {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -529,6 +594,7 @@
   <button class="tab-btn active" id="tab-dispatch" onclick="switchTab('dispatch')">Dispatch</button>
   <button class="tab-btn" id="tab-phonelist" onclick="switchTab('phonelist')">Phone List</button>
   <button class="tab-btn" id="tab-pkgstatus" onclick="switchTab('pkgstatus')">Package Status</button>
+  <button class="tab-btn" id="tab-predvic" onclick="switchTab('predvic')">Pre-DVIC Extractor</button>
   <button class="tab-btn" id="tab-hrtransport" onclick="hrtRequestAccess()">HR Transportation</button>
 </div>
 
@@ -1046,12 +1112,15 @@ function switchTab(tab) {
   document.getElementById('panel-dispatch').style.display = tab === 'dispatch' ? 'grid' : 'none';
   document.getElementById('panel-phonelist').style.display = tab === 'phonelist' ? 'block' : 'none';
   document.getElementById('panel-pkgstatus').style.display = tab === 'pkgstatus' ? 'block' : 'none';
+  document.getElementById('panel-predvic').style.display = tab === 'predvic' ? 'block' : 'none';
   document.getElementById('panel-hrtransport').style.display = tab === 'hrtransport' ? 'flex' : 'none';
   document.getElementById('tab-dispatch').classList.toggle('active', tab === 'dispatch');
   document.getElementById('tab-phonelist').classList.toggle('active', tab === 'phonelist');
   document.getElementById('tab-pkgstatus').classList.toggle('active', tab === 'pkgstatus');
+  document.getElementById('tab-predvic').classList.toggle('active', tab === 'predvic');
   document.getElementById('tab-hrtransport').classList.toggle('active', tab === 'hrtransport');
   if (tab === 'phonelist') renderPhoneList();
+  if (tab === 'predvic') pdvicPopulateVinList();
 }
 
 function openRequestModal() {
@@ -1985,6 +2054,364 @@ function exportPkgCSV() {
   a.download = 'package_status.csv'; a.click();
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const PDVIC_TEMPLATE=[
+  {row:3,vin:"3C6LRVDG6RE153730",vehicle:"PRKL-01"},
+  {row:4,vin:"3C6LRVDGXSE504662",vehicle:"PRKL-02"},
+  {row:5,vin:"3C6LRVDG8SE520908",vehicle:"PRKL-03"},
+  {row:6,vin:"3C6LRVDG2SE516806",vehicle:"PRKL-04"},
+  {row:7,vin:"3C6LRVDG4RE150860",vehicle:"PRKL-05"},
+  {row:8,vin:"3C6LRVDG7RE132904",vehicle:"PRKL-06"},
+  {row:9,vin:"3C6LRVDG4SE515852",vehicle:"PRKL-07"},
+  {row:10,vin:"3C6LRVDG2SE522234",vehicle:"PRKL-08"},
+  {row:11,vin:"3C6LRVDG9RE153544",vehicle:"PRKL-09"},
+  {row:12,vin:"3C6LRVDG2SE509516",vehicle:"PRKL-10"},
+  {row:13,vin:"3C6LRVDGXRE149518",vehicle:"PRKL-11"},
+  {row:14,vin:"3C6LRVDG9SE509609",vehicle:"PRKL-12"},
+  {row:15,vin:"3C6LRVDG8RE151218",vehicle:"PRKL-13"},
+  {row:16,vin:"3C6LRVDG3SE515891",vehicle:"PRKL-14"},
+  {row:17,vin:"3C6LRVDG5SE515889",vehicle:"PRKL-15"},
+  {row:18,vin:"3C6LRVDG9SE509013",vehicle:"PRKL-16"},
+  {row:19,vin:"3C6LRVDG1RE125737",vehicle:"PRKL-17"},
+  {row:20,vin:"3C6LRVDG8SE509472",vehicle:"PRKL-18"},
+  {row:21,vin:"3C6MRVJGXME556904",vehicle:"PRKL-19"},
+  {row:22,vin:"3C6LRVDG9SE521517",vehicle:"PRKL-20"},
+  {row:23,vin:"3C6LRVDG7RE150979",vehicle:"PRKL-21"},
+  {row:24,vin:"3C6LRVDG2RE151246",vehicle:"PRKL-22"},
+  {row:25,vin:"3C6LRVDG3SE522095",vehicle:"PRKL-23"},
+  {row:26,vin:"3C6LRVDGXRE133237",vehicle:"PRKL-24"},
+  {row:27,vin:"3C6LRVDG6SE515903",vehicle:"PRKL-25"},
+  {row:28,vin:"3C6LRVDG0SE516416",vehicle:"PRKL-26"},
+  {row:29,vin:"3C6LRVDG1SE522130",vehicle:"PRKL-27"},
+  {row:30,vin:"3C6MRVHG8SE546388",vehicle:"PRKL-28"},
+  {row:31,vin:"3C6LRVDG9SE513921",vehicle:"PRKL-29"},
+  {row:32,vin:"1FTBR1C83SKA46435",vehicle:"PRKL-30"},
+  {row:33,vin:"3C6LRVDG8TE157723",vehicle:"PRKL-31"},
+  {row:34,vin:"3C6LRVDGXTE157724",vehicle:"PRKL-32"},
+  {row:35,vin:"1FTBR3X89MKA56945",vehicle:"PRKL-33"},
+  {row:36,vin:"3C6MRVJG5ME535877",vehicle:"PRKL-34"},
+  {row:37,vin:"3C6LRVDG0TE157716",vehicle:"PRKL-35"},
+  {row:38,vin:"3C6LRVDG4TE157718",vehicle:"PRKL-36"},
+  {row:39,vin:"3C6LRVDG4TE157721",vehicle:"PRKL-37"},
+  {row:40,vin:"3C6MRVJG7NE112106",vehicle:"PRKL-38"},
+  {row:41,vin:"1FTBR3X89MKA82820",vehicle:"PRKL-39"},
+  {row:42,vin:"3C6LRVDG6SE516839",vehicle:"PRKL-40"},
+  {row:43,vin:"3C6LRVDG5SE521482",vehicle:"PRKL-42"},
+  {row:44,vin:"3C6LRVDG5RE151208",vehicle:"PRKL-43"},
+  {row:45,vin:"3C6MRVHG8SE546388",vehicle:"PRKL-60"},
+  {row:46,vin:"3C6LRVDGXPE595889",vehicle:"PRKL-61"},
+  {row:47,vin:"3C6LRVDG9SE513921",vehicle:"PRKL-62"},
+  {row:48,vin:"3C6LRVDG4RE140006",vehicle:"PRKL-63"},
+  {row:49,vin:"3C6MRVHGXSE546389",vehicle:"PRKL-64"},
+  {row:50,vin:"3C6URVJG7LE128772",vehicle:"PRKL-98"},
+  {row:51,vin:"WD4PF0CD6KP086460",vehicle:"PRKL-99"},
+];
+const PDVIC_TVIN=new Set(PDVIC_TEMPLATE.map(t=>t.vin));
+let pdvicRows=[], pdvicErrs=[], pdvicSortCol='vehicle', pdvicSortDir=1;
+
+function pdvicGetEasternOffset(utcDate){
+  const jan=new Date(Date.UTC(utcDate.getUTCFullYear(),0,1));
+  const jul=new Date(Date.UTC(utcDate.getUTCFullYear(),6,1));
+  const stdOffset=-5*60;
+  const dstOffset=-4*60;
+  function isDST(d){
+    const y=d.getUTCFullYear();
+    const dstStart=new Date(Date.UTC(y,2,8+((7-new Date(Date.UTC(y,2,8)).getUTCDay())%7),2));
+    const dstEnd=new Date(Date.UTC(y,10,1+((7-new Date(Date.UTC(y,10,1)).getUTCDay())%7),2));
+    return d>=dstStart&&d<dstEnd;
+  }
+  return isDST(utcDate)?dstOffset:stdOffset;
+}
+
+function pdvicUtcToEastern(s){
+  const m=s.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})\s+UTC/);
+  if(!m) return {time:null,label:'ET'};
+  const utc=new Date(Date.UTC(+m[3],+m[1]-1,+m[2],+m[4],+m[5],+m[6]));
+  const offset=pdvicGetEasternOffset(utc);
+  const local=new Date(utc.getTime()+offset*60000);
+  const isDST=offset===-240;
+  const time=[local.getUTCHours(),local.getUTCMinutes(),local.getUTCSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  return {time,label:isDST?'EDT':'EST'};
+}
+
+function pdvicExtractDate(s){ return s ? s.replace(/\s+\d{2}:\d{2}:\d{2}\s+UTC/,'') : ''; }
+function pdvicExtract(text){
+  const dM=text.match(/Driver\/Inspector\s*#:\s*(.+?)(?:\s{2,}|License plate)/);
+  const dtM=text.match(/Inspection date:\s*(\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}:\d{2}\s+UTC)/);
+  const vM=text.match(/VIN:\s+([A-HJ-NPR-Z0-9]{17})/);
+  const r=pdvicUtcToEastern(dtM?dtM[1].trim():'');
+  return {driver:dM?dM[1].trim():null,rawDate:dtM?dtM[1].trim():null,vin:vM?vM[1].trim():null,timeET:r.time,tzLabel:r.label};
+}
+
+let pdvicPdfReady=false;
+async function pdvicLoadPDF(){
+  if(pdvicPdfReady) return;
+  await new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload=res; s.onerror=rej; document.head.appendChild(s);
+  });
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  pdvicPdfReady=true;
+}
+async function pdvicPdfText(bytes){
+  await pdvicLoadPDF();
+  const pdf=await pdfjsLib.getDocument({data:bytes}).promise;
+  let t='';
+  for(let p=1;p<=pdf.numPages;p++){ const pg=await pdf.getPage(p); const c=await pg.getTextContent(); t+=c.items.map(i=>i.str).join(' ')+'\n'; }
+  return t;
+}
+
+function pdvicToast(msg){
+  const el=document.createElement('div'); el.className='toast'; el.textContent=msg;
+  document.getElementById('predvic-toastArea').appendChild(el);
+  setTimeout(()=>el.remove(),6000);
+}
+function pdvicSetProgress(pct){
+  const w=document.getElementById('predvic-progWrap'), b=document.getElementById('predvic-progBar');
+  w.style.display='block'; b.style.width=pct+'%';
+  if(pct>=100) setTimeout(()=>{ w.style.display='none'; b.style.width='0%'; }, 600);
+}
+
+async function pdvicProcessFiles(files){
+  const zips=Array.from(files).filter(f=>f.name.toLowerCase().endsWith('.zip'));
+  if(!zips.length) return;
+  document.getElementById('predvic-dropLabel').textContent='Processing…';
+  document.getElementById('predvic-emptyMsg').style.display='none';
+  pdvicSetProgress(5);
+  let done=0;
+  for(const file of zips){
+    try{
+      const zip=await JSZip.loadAsync(file);
+      const pdfs=Object.values(zip.files).filter(f=>!f.dir&&f.name.toLowerCase().endsWith('.pdf'));
+      if(!pdfs.length){ pdvicErrs.push(`${file.name}: no PDF found`); continue; }
+      for(const entry of pdfs){
+        const bytes=await entry.async('uint8array');
+        const text=await pdvicPdfText(bytes);
+        const d=pdvicExtract(text);
+        const inTpl=d.vin?PDVIC_TVIN.has(d.vin):null;
+        const vehicle=d.vin?PDVIC_TEMPLATE.find(t=>t.vin===d.vin)?.vehicle||'—':'—';
+        const status=(!d.vin&&!d.driver)?'error':(!d.vin||!d.driver||!d.timeET)?'partial':'ok';
+        pdvicRows.push({zipName:file.name,vin:d.vin,driver:d.driver,timeET:d.timeET,tzLabel:d.tzLabel,rawDate:d.rawDate,vehicle,status,inTpl});
+        if(d.vin&&!inTpl) pdvicToast('Unknown VIN: '+d.vin+'\n'+file.name);
+      }
+    } catch(e){ pdvicErrs.push(`${file.name}: ${e.message}`); }
+    done++; pdvicSetProgress(Math.round(5+90*(done/zips.length)));
+  }
+  pdvicSetProgress(100);
+  document.getElementById('predvic-dropLabel').textContent='Drop ZIP files here or click to browse';
+  const labels=[...new Set(pdvicRows.map(r=>r.tzLabel).filter(Boolean))];
+  if(labels.length) document.getElementById('predvic-tzBadge').textContent='UTC → '+labels.join('/');
+  pdvicUpdateStats(); pdvicRenderUnknown(); pdvicRenderTable();
+  document.getElementById('predvic-tableSection').style.display='block';
+}
+
+function pdvicUpdateStats(){
+  const matched=pdvicRows.filter(r=>r.inTpl===true).length;
+  document.getElementById('predvic-sTotal').textContent=pdvicRows.length;
+  document.getElementById('predvic-sMatched').textContent=matched;
+  document.getElementById('predvic-sPending').textContent=PDVIC_TEMPLATE.length-matched;
+  document.getElementById('predvic-sUnknown').textContent=pdvicRows.filter(r=>r.inTpl===false).length;
+}
+
+function pdvicRenderUnknown(){
+  const unk=pdvicRows.filter(r=>r.vin&&r.inTpl===false);
+  const b=document.getElementById('predvic-unknownBanner');
+  if(!unk.length){ b.style.display='none'; return; }
+  b.style.display='block';
+  b.innerHTML=`<div class="unknown-banner"><div class="ub-title"><svg style="width:14px;height:14px;stroke:#f8b3b3;fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>${unk.length} VIN${unk.length>1?'s':''} not found in your template</div><div class="ub-vins">${unk.map(r=>`<span class="ub-pill">${r.vin}</span>`).join('')}</div></div>`;
+}
+
+const PDVIC_COLS=['vehicle','vin','driver','timeET','inTpl','status'];
+const PDVIC_CHEADS=['Vehicle','VIN','Driver / Inspector','Time (ET)','Template','Status'];
+const PDVIC_CWIDTHS=['10%','22%','26%','13%','12%','10%','7%'];
+
+function pdvicSetSort(col){ if(pdvicSortCol===col) pdvicSortDir*=-1; else { pdvicSortCol=col; pdvicSortDir=1; } pdvicRenderTable(); }
+
+function pdvicRenderTable(){
+  const q=(document.getElementById('predvic-searchBox').value||'').toLowerCase();
+  const f=document.getElementById('predvic-filterBox').value;
+  let data=[...pdvicRows];
+  if(q) data=data.filter(r=> (r.vin||'').toLowerCase().includes(q) || (r.driver||'').toLowerCase().includes(q) || (r.vehicle||'').toLowerCase().includes(q));
+  if(f==='matched') data=data.filter(r=>r.inTpl===true);
+  else if(f==='unknown') data=data.filter(r=>r.inTpl===false);
+  else if(f==='pending') data=data.filter(r=>r.status!=='ok');
+  data.sort((a,b)=>{ const av=a[pdvicSortCol]||''; const bv=b[pdvicSortCol]||''; return av<bv?-pdvicSortDir:av>bv?pdvicSortDir:0; });
+  const container=document.getElementById('predvic-tblBody');
+  if(!data.length){ container.innerHTML=`<div style="padding:2rem;text-align:center;color:var(--muted);font-size:0.9rem">No results match your filter</div>`; return; }
+  let h=`<div style="overflow-x:auto"><table><colgroup>${PDVIC_CWIDTHS.map(w=>`<col style="width:${w}">`).join('')}</colgroup><thead><tr>`;
+  PDVIC_COLS.forEach((c,i)=>{ const active=pdvicSortCol===c; h+=`<th onclick="pdvicSetSort('${c}')">${PDVIC_CHEADS[i]}<span style="margin-left:6px;opacity:${active?1:0.4};font-size:10px">${active?(pdvicSortDir===1?'▲':'▼'):'▲'}</span></th>`; });
+  h+='<th>Source</th></tr></thead><tbody>';
+  data.forEach(r=>{
+    const tplBadge=r.inTpl===null?`<span class="badge badge-blue">—</span>`:r.inTpl?`<span class="badge badge-green">✓ Yes</span>`:`<span class="badge badge-red">✕ No</span>`;
+    const stBadge=r.status==='ok'?`<span class="badge badge-green">OK</span>`:r.status==='partial'?`<span class="badge badge-amber">Partial</span>`:`<span class="badge badge-red">Error</span>`;
+    const tzPill=r.tzLabel?`<span style="font-size:0.75rem;color:var(--muted);margin-left:6px">${r.tzLabel}</span>`:'';
+    h+=`<tr><td style="font-weight:600;color:var(--text)">${r.vehicle||'—'}</td><td style="font-family:var(--font-mono,monospace);font-size:0.85rem;color:${r.inTpl===false?'#f49797':'var(--text)'}">${r.vin||'—'}</td><td style="color:var(--text)">${r.driver||'—'}</td><td style="font-family:var(--font-mono,monospace);font-size:0.85rem;color:var(--text)">${r.timeET||'—'}${tzPill}</td><td>${tplBadge}</td><td>${stBadge}</td><td style="color:var(--muted);font-size:0.78rem;overflow:hidden;text-overflow:ellipsis">${r.zipName}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  container.innerHTML=h;
+}
+
+function pdvicBuildExcel(){
+  const cs={font:{name:'Arial',sz:10},alignment:{horizontal:'center'},border:{top:{style:'medium'},bottom:{style:'medium'},left:{style:'medium'},right:{style:'medium'}}};
+  const hs={font:{name:'Arial',sz:10,bold:true},fill:{patternType:'solid',fgColor:{rgb:'D9D2E9'}},alignment:{horizontal:'center'},border:{top:{style:'medium'},bottom:{style:'medium'},left:{style:'medium'},right:{style:'medium'}}};
+  const ts={font:{name:'Arial',sz:10,bold:true},fill:{patternType:'solid',fgColor:{rgb:'D9D2E9'}},alignment:{horizontal:'center'}};
+  const lookup={}; pdvicRows.forEach(r=>{ if(r.vin) lookup[r.vin]=r; });
+  const wsData=[];
+  wsData.push([{v:'',s:cs},{v:'Pre - DVIC',s:ts},null,null,null,null,null,null,null,null]);
+  wsData.push([{v:'DVIC',s:hs},{v:'Date',s:hs},{v:'DA',s:hs},{v:'Vehicle',s:hs},{v:'VIN',s:hs},{v:'Station',s:hs},{v:'Time',s:hs},{v:'Result',s:hs},{v:'Note',s:hs},null]);
+  const station = pdvicSelectedDSP === 'portkey' ? 'WNY1' : 'WNY1';
+  PDVIC_TEMPLATE.forEach(t=>{
+    const m=lookup[t.vin];
+    wsData.push([
+      {v:'Pre- DVIC',s:cs},{v:m?pdvicExtractDate(m.rawDate):'',s:cs},{v:m?m.driver||'':'',s:cs},
+      {v:t.vehicle,s:cs},{v:t.vin,s:cs},{v:station,s:cs},
+      {v:m?m.timeET||'': '',s:cs},{v:'Passed',s:cs},{v:'',s:cs},null
+    ]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols']=[{wch:12},{wch:14},{wch:22},{wch:10},{wch:20},{wch:9},{wch:10},{wch:9},{wch:14},{wch:5}];
+  ws['!merges']=[{s:{r:0,c:1},e:{r:0,c:9}}];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Pre-DVIC');
+  const now=new Date();
+  const ds=`${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${now.getFullYear()}`;
+  XLSX.writeFile(wb,`Pre-DVIC_${ds}.xlsx`);
+}
+
+function pdvicDownloadCSV(){
+  const lines=[['Vehicle','VIN','Driver/Inspector #','Inspection Time (ET)','Timezone','In Template','Source ZIP'].join(',')];
+  pdvicRows.forEach(r=>lines.push([`"${r.vehicle||''}"`,`"${r.vin||''}"`,`"${r.driver||''}"`,`"${r.timeET||''}"`,`"${r.tzLabel||''}"`,`"${r.inTpl===null?'N/A':r.inTpl?'Yes':'No'}"`,`"${r.zipName}"`].join(',')));
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'})); a.download='vehicle_inspection_log.csv'; a.click();
+}
+
+let pdvicSelectedDSP='portkey';
+
+function pdvicChangeDSP(value){
+  pdvicSelectedDSP = value;
+}
+
+function pdvicClearAll(){
+  pdvicRows=[]; pdvicErrs=[];
+  ['predvic-sTotal','predvic-sMatched','predvic-sPending','predvic-sUnknown'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('predvic-tableSection').style.display='none';
+  document.getElementById('predvic-unknownBanner').style.display='none';
+  document.getElementById('predvic-emptyMsg').style.display='block';
+  document.getElementById('predvic-tzBadge').textContent='UTC → ET';
+}
+
+function pdvicToggleVins(el){
+  const body=document.getElementById('predvic-vinsBody'), arrow=el.querySelector('.arrow');
+  const open=body.classList.toggle('open'); arrow.classList.toggle('open',open);
+}
+
+function pdvicPopulateVinList(){
+  const body=document.getElementById('predvic-vinsBody');
+  if(!body) return;
+  body.innerHTML = '';
+  [...PDVIC_TVIN].sort().forEach(v=>{
+    const s=document.createElement('span');
+    s.className='vin-pill';
+    s.textContent=v;
+    body.appendChild(s);
+  });
+}
+
+function pdvicOnDrop(e){ e.preventDefault(); document.getElementById('predvic-dropzone').classList.remove('over'); pdvicProcessFiles(e.dataTransfer.files); }
+function pdvicHandleFiles(files){ pdvicProcessFiles(files); }
+</script>
+
+<!-- PRE-DVIC EXTRACTOR TAB -->
+<div id="panel-predvic" style="display:none; height:calc(100vh - 120px); overflow:auto; padding:24px 32px;">
+  <div class="predvic-panel">
+    <div class="toast-area" id="predvic-toastArea"></div>
+    <div class="hero">
+      <div class="hero-bg"></div><div class="hero-bg2"></div>
+      <h1>Pre-DVIC inspection extractor</h1>
+      <div class="hero-sub">
+        <span>Upload ZIP files → extract VIN, driver & time → download your filled template</span>
+        <span class="tz-badge" id="predvic-tzBadge">UTC → ET</span>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card blue"><div class="num" id="predvic-sTotal">0</div><div class="lbl">Total processed</div></div>
+      <div class="stat-card green"><div class="num" id="predvic-sMatched">0</div><div class="lbl">Matched to template</div></div>
+      <div class="stat-card amber"><div class="num" id="predvic-sPending">0</div><div class="lbl">Still pending</div></div>
+      <div class="stat-card red"><div class="num" id="predvic-sUnknown">0</div><div class="lbl">Unknown VINs</div></div>
+    </div>
+
+    <div class="settings-row">
+      <label for="predvic-dspSelect">Select DSP</label>
+      <select id="predvic-dspSelect" class="tbl-filter" onchange="pdvicChangeDSP(this.value)">
+        <option value="portkey">PortKey Delivery</option>
+      </select>
+    </div>
+
+    <div class="drop-area" id="predvic-dropzone"
+      onclick="document.getElementById('predvic-fi').click()"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="pdvicOnDrop(event)">
+      <div class="drop-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div class="drop-title" id="predvic-dropLabel">Drop ZIP files here or click to browse</div>
+      <div class="drop-sub">Each ZIP should contain an Inspection.pdf</div>
+      <input id="predvic-fi" type="file" accept=".zip" multiple style="display:none" onchange="pdvicHandleFiles(this.files)">
+    </div>
+
+    <div class="progress-bar-wrap" id="predvic-progWrap"><div class="progress-bar" id="predvic-progBar"></div></div>
+
+    <div class="vins-expander">
+      <div class="vins-toggle" onclick="pdvicToggleVins(this)">
+        <span style="font-size:14px">●</span>
+        <span style="font-weight:500;color:var(--text)">Template vehicles</span>
+        <span style="background:rgba(230,241,251,0.18);color:#b8d9ff;border-radius:8px;padding:2px 10px;font-size:0.78rem;font-weight:700">49 VINs</span>
+        <span style="flex:1"></span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="vins-body" id="predvic-vinsBody"></div>
+    </div>
+
+    <div id="predvic-unknownBanner" style="display:none"></div>
+
+    <div id="predvic-tableSection" style="display:none">
+      <div class="section-header">
+        <span class="section-title">Extraction results</span>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="pdvicBuildExcel()">
+            <svg style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px;margin-right:5px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Excel
+          </button>
+          <button class="btn" onclick="pdvicDownloadCSV()">Download CSV</button>
+          <button class="btn btn-ghost" onclick="pdvicClearAll()">Clear</button>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-toolbar">
+          <input class="tbl-search" id="predvic-searchBox" type="text" placeholder="Search VIN, driver, vehicle…" oninput="pdvicRenderTable()">
+          <select class="tbl-filter" id="predvic-filterBox" onchange="pdvicRenderTable()">
+            <option value="all">All results</option>
+            <option value="matched">Matched only</option>
+            <option value="unknown">Unknown VINs</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
+        <div id="predvic-tblBody"></div>
+      </div>
+    </div>
+
+    <div class="empty-state" id="predvic-emptyMsg">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">No files processed yet</div>
+      <div style="font-size:13px;color:var(--muted)">Upload ZIP files above to get started</div>
+    </div>
+  </div>
+</div>
 
 <!-- ===== PASSCODE MODAL: HR Transportation ===== -->
 <div id="modal-hrt-passcode" class="modal-overlay" onclick="hrtPasscodeOverlayClick(event)">
