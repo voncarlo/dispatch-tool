@@ -1,0 +1,15 @@
+{
+  "name": "dispatch-tool",
+  "version": "1.0.0",
+  "description": "Static dispatch tool served with Express for Railway deployment.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
