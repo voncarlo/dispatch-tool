@@ -563,6 +563,18 @@ def index():
     return render_template_string(HTML_FILE.read_text(encoding="utf-8"))
 
 
+@app.route("/phone-list")
+@app.route("/package-status")
+@app.route("/dvic")
+@app.route("/portkey-workflow")
+@app.route("/portkey-route-sheet")
+@app.route("/portkey-attendance")
+@app.route("/pre-dvic")
+@app.route("/hr-transportation")
+def app_tab_route():
+    return index()
+
+
 @app.route("/api/auth/login", methods=["POST"])
 def login_user_account():
     init_db()

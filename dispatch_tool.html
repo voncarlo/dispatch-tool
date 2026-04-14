@@ -2548,7 +2548,8 @@ function applyAuthenticatedUser(userProfile) {
   writeSavedSession(userProfile);
   setLoginStatus('');
   syncSessionUI();
-  switchTab(getFirstOperationalDSPKey() ? 'dispatch' : 'hrtransport');
+  const requestedTab = getTabForCurrentPath();
+  switchTab(getFirstOperationalDSPKey() ? requestedTab : 'hrtransport', { replaceUrl: true });
   if (assignedDSPKeys.length > 1) {
     setTimeout(openDSPChoiceModal, 150);
   }
@@ -2654,6 +2655,9 @@ function initDispatchLogin() {
     addLog('Session Restored', `${DSP_ACCOUNTS[saved.account].name} restored from session`);
   }
   syncSessionUI();
+  if (activeDSPAccount) {
+    switchTab(getTabForCurrentPath(), { replaceUrl: true });
+  }
 }
 
 function getOwnerAuthHeaders() {
@@ -4139,8 +4143,46 @@ function normalizePhone(p) {
   return digits;
 }
 
-function switchTab(tab) {
+const TAB_PATHS = {
+  dispatch: '/',
+  phonelist: '/phone-list',
+  pkgstatus: '/package-status',
+  dvic: '/dvic',
+  workflow: '/portkey-workflow',
+  routesheet: '/portkey-route-sheet',
+  attendance: '/portkey-attendance',
+  predvic: '/pre-dvic',
+  hrtransport: '/hr-transportation'
+};
+const PATH_TABS = Object.fromEntries(Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab]));
+
+function getTabForCurrentPath() {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  return PATH_TABS[path] || 'dispatch';
+}
+
+function updateTabUrl(tab, replace = false) {
+  if (!isHostedMode() || !window.history || !TAB_PATHS[tab]) return;
+  const targetUrl = TAB_PATHS[tab] + window.location.search + window.location.hash;
+  const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+  if (targetUrl === currentUrl) return;
+  const method = replace ? 'replaceState' : 'pushState';
+  window.history[method]({ tab }, '', targetUrl);
+}
+
+function getAllowedTab(tab) {
+  if (!activeDSPAccount) return tab;
+  if (activeDSPAccount === 'hrt') return tab === 'hrtransport' ? tab : 'hrtransport';
+  if ((tab === 'workflow' || tab === 'routesheet' || tab === 'attendance') && activeDSPAccount !== 'portkey') {
+    return 'dispatch';
+  }
+  if (tab === 'hrtransport') return 'dispatch';
+  return tab;
+}
+
+function switchTab(tab, options = {}) {
   if (!activeDSPAccount) return;
+  tab = getAllowedTab(tab);
   const hasOperationalDSP = activeDSPAccount !== 'hrt';
   if (!hasOperationalDSP && tab !== 'hrtransport') return;
   if (tab === 'storage') {
@@ -4151,6 +4193,7 @@ function switchTab(tab) {
   if (tab === 'workflow' && activeDSPAccount !== 'portkey') return;
   if (tab === 'routesheet' && activeDSPAccount !== 'portkey') return;
   if (tab === 'attendance' && activeDSPAccount !== 'portkey') return;
+  updateTabUrl(tab, Boolean(options.replaceUrl));
   currentTab = tab;
   document.getElementById('panel-dispatch').style.display = tab === 'dispatch' ? 'grid' : 'none';
   document.getElementById('panel-phonelist').style.display = tab === 'phonelist' ? 'block' : 'none';
@@ -4179,6 +4222,10 @@ function switchTab(tab) {
   if (tab === 'predvic') pdvicPopulateVinList();
   addLog('Navigate', `Opened ${tab} tab`);
 }
+
+window.addEventListener('popstate', () => {
+  switchTab(getTabForCurrentPath(), { replaceUrl: true });
+});
 
 function openRequestModal() {
   syncSessionUI();
