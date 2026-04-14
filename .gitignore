@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+activity_logs.db
+.env
+.venv/
+venv/

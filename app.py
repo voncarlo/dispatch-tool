@@ -17,7 +17,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).resolve().parent
 HTML_FILE = BASE_DIR / "dispatch_tool.html"
-DB_FILE = BASE_DIR / "activity_logs.db"
+VOLUME_DIR = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
+DEFAULT_DB_FILE = Path(VOLUME_DIR) / "activity_logs.db" if VOLUME_DIR else BASE_DIR / "activity_logs.db"
+DB_FILE = Path(os.environ.get("DISPATCH_DB_PATH", DEFAULT_DB_FILE)).expanduser()
 OWNER_PASSWORD = os.environ.get("DISPATCH_OWNER_PASSWORD", "Torero@2026")
 PHONE_LIST_DSP_KEYS = ("armm", "tlc", "portkey", "mstar")
 DSP_NAMES = {
@@ -49,6 +51,7 @@ app.secret_key = os.environ.get("DISPATCH_SECRET_KEY", f"{OWNER_PASSWORD}-dispat
 
 
 def get_db_connection() -> sqlite3.Connection:
+    DB_FILE.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     return conn
@@ -1383,4 +1386,6 @@ seed_phone_lists_if_empty()
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", "5000"))
+    debug = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes", "on"}
+    app.run(host="0.0.0.0", port=port, debug=debug)
