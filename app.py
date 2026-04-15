@@ -10,9 +10,17 @@ from datetime import datetime, timezone
 from html import escape as xml_escape
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import urlparse
 
 from flask import Flask, jsonify, render_template_string, request, send_file, session
 from werkzeug.security import check_password_hash, generate_password_hash
+
+try:
+    import pymysql
+    from pymysql.err import IntegrityError as MySQLIntegrityError
+except ImportError:  # pragma: no cover - only needed when MySQL env vars are set.
+    pymysql = None
+    MySQLIntegrityError = None
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -20,6 +28,8 @@ HTML_FILE = BASE_DIR / "dispatch_tool.html"
 VOLUME_DIR = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
 DEFAULT_DB_FILE = Path(VOLUME_DIR) / "activity_logs.db" if VOLUME_DIR else BASE_DIR / "activity_logs.db"
 DB_FILE = Path(os.environ.get("DISPATCH_DB_PATH", DEFAULT_DB_FILE)).expanduser()
+MYSQL_URL = os.environ.get("MYSQL_URL") or os.environ.get("DATABASE_URL")
+USE_MYSQL = bool(MYSQL_URL or os.environ.get("MYSQLHOST"))
 OWNER_PASSWORD = os.environ.get("DISPATCH_OWNER_PASSWORD", "Torero@2026")
 PHONE_LIST_DSP_KEYS = ("armm", "tlc", "portkey", "mstar")
 DSP_NAMES = {
@@ -50,14 +60,267 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("DISPATCH_SECRET_KEY", f"{OWNER_PASSWORD}-dispatch-session")
 
 
-def get_db_connection() -> sqlite3.Connection:
+class DictRow(dict):
+    def keys(self):
+        return super().keys()
+
+
+class CursorResult:
+    def __init__(self, cursor):
+        self.cursor = cursor
+
+    @property
+    def lastrowid(self):
+        return self.cursor.lastrowid
+
+    def fetchone(self):
+        row = self.cursor.fetchone()
+        if row is None:
+            return None
+        return DictRow(row)
+
+    def fetchall(self):
+        return [DictRow(row) for row in self.cursor.fetchall()]
+
+
+class DbConnection:
+    def __init__(self, conn, engine: str):
+        self.conn = conn
+        self.engine = engine
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        self.conn.close()
+
+    def commit(self):
+        self.conn.commit()
+
+    def execute(self, sql: str, params=()):
+        sql = self._prepare_sql(sql)
+        if self.engine == "sqlite":
+            return CursorResult(self.conn.execute(sql, params))
+        cursor = self.conn.cursor()
+        cursor.execute(sql, params)
+        return CursorResult(cursor)
+
+    def executemany(self, sql: str, params):
+        sql = self._prepare_sql(sql)
+        if self.engine == "sqlite":
+            return CursorResult(self.conn.executemany(sql, params))
+        cursor = self.conn.cursor()
+        cursor.executemany(sql, params)
+        return CursorResult(cursor)
+
+    def _prepare_sql(self, sql: str) -> str:
+        if self.engine == "sqlite":
+            return sql
+        return (
+            sql.replace("?", "%s")
+            .replace("ORDER BY da_name COLLATE NOCASE ASC", "ORDER BY LOWER(da_name) ASC")
+            .replace(
+                """
+            ON CONFLICT(id) DO UPDATE SET raw_payload = excluded.raw_payload, updated_at = excluded.updated_at
+            """,
+                """
+            ON DUPLICATE KEY UPDATE raw_payload = VALUES(raw_payload), updated_at = VALUES(updated_at)
+            """,
+            )
+        )
+
+
+def get_mysql_config() -> dict:
+    if MYSQL_URL:
+        parsed = urlparse(MYSQL_URL)
+        return {
+            "host": parsed.hostname,
+            "port": parsed.port or 3306,
+            "user": parsed.username,
+            "password": parsed.password,
+            "database": parsed.path.lstrip("/"),
+        }
+    return {
+        "host": os.environ["MYSQLHOST"],
+        "port": int(os.environ.get("MYSQLPORT", "3306")),
+        "user": os.environ["MYSQLUSER"],
+        "password": os.environ["MYSQLPASSWORD"],
+        "database": os.environ["MYSQLDATABASE"],
+    }
+
+
+def get_db_connection() -> DbConnection:
+    if USE_MYSQL:
+        if pymysql is None:
+            raise RuntimeError("PyMySQL is required when MYSQL_URL or MYSQLHOST is configured.")
+        return DbConnection(
+            pymysql.connect(
+                **get_mysql_config(),
+                charset="utf8mb4",
+                cursorclass=pymysql.cursors.DictCursor,
+                autocommit=False,
+            ),
+            "mysql",
+        )
     DB_FILE.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
-    return conn
+    return DbConnection(conn, "sqlite")
+
+
+def db_columns(conn: DbConnection, table_name: str) -> set[str]:
+    if conn.engine == "mysql":
+        rows = conn.execute(
+            """
+            SELECT COLUMN_NAME AS name
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?
+            """,
+            (table_name,),
+        ).fetchall()
+    else:
+        rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+    return {row["name"] for row in rows}
+
+
+def db_integrity_error() -> tuple[type[Exception], ...]:
+    errors: list[type[Exception]] = [sqlite3.IntegrityError]
+    if MySQLIntegrityError is not None:
+        errors.append(MySQLIntegrityError)
+    return tuple(errors)
+
+
+def init_mysql_db() -> None:
+    with get_db_connection() as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS phone_list_entries (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                dsp_key VARCHAR(40) NOT NULL,
+                label VARCHAR(255) NOT NULL,
+                last_name VARCHAR(255),
+                work_phone VARCHAR(80),
+                home_phone VARCHAR(80),
+                mobile_phone VARCHAR(80),
+                updated_at VARCHAR(64) NOT NULL,
+                INDEX idx_phone_list_entries_dsp_key (dsp_key)
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS transporter_id_entries (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                dsp_key VARCHAR(40) NOT NULL,
+                da_key VARCHAR(255) NOT NULL,
+                da_name VARCHAR(255) NOT NULL,
+                transporter_id VARCHAR(255) NOT NULL,
+                notes TEXT,
+                updated_at VARCHAR(64) NOT NULL,
+                UNIQUE KEY uq_transporter_dsp_da (dsp_key, da_key),
+                INDEX idx_transporter_id_entries_dsp_key (dsp_key)
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS associate_data_entries (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                dsp_key VARCHAR(40) NOT NULL,
+                raw_payload LONGTEXT NOT NULL,
+                updated_at VARCHAR(64) NOT NULL,
+                INDEX idx_associate_data_entries_dsp_key (dsp_key)
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS vehicle_data_entries (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                dsp_key VARCHAR(40) NOT NULL,
+                raw_payload LONGTEXT NOT NULL,
+                updated_at VARCHAR(64) NOT NULL,
+                INDEX idx_vehicle_data_entries_dsp_key (dsp_key)
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS activity_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                iso_time VARCHAR(64) NOT NULL,
+                timestamp VARCHAR(255),
+                action VARCHAR(120) NOT NULL,
+                details TEXT,
+                account_key VARCHAR(80),
+                account_name VARCHAR(120),
+                session_id VARCHAR(120),
+                current_tab VARCHAR(80),
+                page VARCHAR(255),
+                user_agent VARCHAR(255),
+                ip_address VARCHAR(80),
+                raw_payload LONGTEXT,
+                created_at VARCHAR(64) NOT NULL
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS portkey_attendance_report (
+                id INT PRIMARY KEY,
+                raw_payload LONGTEXT NOT NULL,
+                updated_at VARCHAR(64) NOT NULL
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_accounts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) NOT NULL UNIQUE,
+                display_name VARCHAR(255) NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                dsp_key VARCHAR(40) NOT NULL,
+                dsp_keys TEXT,
+                profile_picture LONGTEXT,
+                is_active TINYINT NOT NULL DEFAULT 1,
+                must_change_password TINYINT NOT NULL DEFAULT 0,
+                created_at VARCHAR(64) NOT NULL,
+                updated_at VARCHAR(64) NOT NULL,
+                last_login_at VARCHAR(64),
+                INDEX idx_user_accounts_username (username)
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        columns = db_columns(conn, "user_accounts")
+        if "dsp_keys" not in columns:
+            conn.execute("ALTER TABLE user_accounts ADD COLUMN dsp_keys TEXT")
+            conn.execute("UPDATE user_accounts SET dsp_keys = dsp_key WHERE dsp_keys IS NULL OR dsp_keys = ''")
+        if "profile_picture" not in columns:
+            conn.execute("ALTER TABLE user_accounts ADD COLUMN profile_picture LONGTEXT")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS account_audit_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT,
+                username VARCHAR(255) NOT NULL,
+                action VARCHAR(120) NOT NULL,
+                details TEXT,
+                actor VARCHAR(80),
+                ip_address VARCHAR(80),
+                created_at VARCHAR(64) NOT NULL,
+                INDEX idx_account_audit_logs_user_id (user_id)
+            ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            """
+        )
+        conn.commit()
 
 
 def init_db() -> None:
+    if USE_MYSQL:
+        init_mysql_db()
+        return
+
     with get_db_connection() as conn:
         conn.execute(
             """
@@ -178,10 +441,7 @@ def init_db() -> None:
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_user_accounts_username ON user_accounts (username)"
         )
-        columns = {
-            row["name"]
-            for row in conn.execute("PRAGMA table_info(user_accounts)").fetchall()
-        }
+        columns = db_columns(conn, "user_accounts")
         if "dsp_keys" not in columns:
             conn.execute("ALTER TABLE user_accounts ADD COLUMN dsp_keys TEXT")
             conn.execute("UPDATE user_accounts SET dsp_keys = dsp_key WHERE dsp_keys IS NULL OR dsp_keys = ''")
@@ -753,7 +1013,7 @@ def create_user_account():
                 "admin",
             )
             conn.commit()
-    except sqlite3.IntegrityError:
+    except db_integrity_error():
         return jsonify({"error": "username already exists"}), 409
 
     return jsonify({"ok": True, "id": cursor.lastrowid}), 201
